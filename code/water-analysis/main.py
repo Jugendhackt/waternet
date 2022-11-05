@@ -6,28 +6,17 @@ import sys
 # if retval != True:
 #    raise ValueError("Can't read frame")
 
+img = cv.imread("../../documentation/resources/test.jpg")
+img_bw = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+den = cv.fastNlMeansDenoising(img_bw, 10, 10, 7, 21)
+cv.imwrite("out/den.png", den)
 
-img_bw = cv.imread("/home/frederic/Desktop/test.jpg", cv.IMREAD_GRAYSCALE)
-(thresh, img_bin) = cv.threshold(img_bw, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
-print(thresh)
+img_bin = cv.adaptiveThreshold(den, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2)
+img_bin = cv.bitwise_not(img_bin)
+cv.imwrite(f"out/out_img_bin.png", img_bin)
 
-th2 = cv.adaptiveThreshold(img_bw, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2)
-th3 = cv.adaptiveThreshold(img_bw, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2)
-
-cv.imwrite(f"out/output.png", img_bin)
-cv.imwrite(f"out/output-ad-mean.png", th2)
-cv.imwrite(f"out/output-ad-gaussian.png", th3)
-
-dst = cv.fastNlMeansDenoising(img_bw, 10, 10, 7, 21)
-
-
-(thresh, img_bin) = cv.threshold(dst, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
-print(thresh)
-
-th2 = cv.adaptiveThreshold(dst, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2)
-th3 = cv.adaptiveThreshold(dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2)
-
-cv.imwrite(f"out/output-den.png", img_bin)
-cv.imwrite(f"out/output-ad-mean-den.png", th2)
-cv.imwrite(f"out/output-ad-gaussian-den.png", th3)
-cv.imwrite("out/den.png", dst)
+(cnt, hierarchy) = cv.findContours(
+    img_bin.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+img_contours = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+cv.drawContours(img_contours, cnt, -1, (0, 255, 0), 1)
+cv.imwrite("out/cont.png", img_contours)
