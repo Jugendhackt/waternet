@@ -7,11 +7,16 @@ import matplotlib.pyplot as plt
 # retval, frame = cam.read()
 # if retval != True:
 #    raise ValueError("Can't read frame")
+in_path = "../../documentation/resources/"
+in_fname = "disturbed_with_cookie.png"
 
-img = cv.imread("../../documentation/resources/test2.jpg")
+img = cv.imread(in_path+in_fname)
 img_bw = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 den = cv.fastNlMeansDenoising(img_bw, 10, 10, 7, 21)
 cv.imwrite("out/den.png", den)
+
+edges = cv.Canny(img, 100, 200)
+cv.imwrite(f"out/out_img_edges.png", edges)
 
 img_bin = cv.adaptiveThreshold(den, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2)
 img_bin = cv.bitwise_not(img_bin)
@@ -33,4 +38,9 @@ plt.xlabel('pixel count')
 plt.ylabel('Occurrence')
 plt.title(f'Histogram of speck area ({len(cnt)} specks)')
 plt.grid(True)
+plt.xlim(0, 1000)
+plt.yscale('log')
+plt.savefig(f"out/plt_{in_fname}")
 plt.show()
+
+
